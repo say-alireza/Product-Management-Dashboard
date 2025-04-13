@@ -71,6 +71,17 @@ export default function Navbar() {
                 درباره ما
               </Link>
             </li>
+            <li className="nav-item">
+              <Link
+                to="/admin"
+                className={`nav-link ${
+                  location.pathname === "/admin" ? "active" : ""
+                } text-danger`}
+              >
+                <i className="bi bi-shield-lock ms-1"></i>
+                پنل مدیریت
+              </Link>
+            </li>
           </ul>
 
           <div className="d-flex gap-2">
