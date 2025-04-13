@@ -1,0 +1,51 @@
+/* RTL Navbar Styles */
+.navbar {
+  font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+}
+
+.navbar-nav {
+  padding-right: 0;
+}
+
+.navbar-brand {
+  margin-right: 0;
+  margin-left: 1rem;
+  font-weight: bold;
+}
+
+.nav-item {
+  margin-left: 0.5rem;
+}
+
+/* Fix dropdown alignment in RTL */
+.navbar-nav .dropdown-menu {
+  right: 0;
+  left: auto;
+  text-align: right;
+}
+
+/* Fix button margins in RTL */
+.navbar .btn {
+  margin-right: 0.5rem;
+}
+
+.navbar .btn:first-child {
+  margin-right: 0;
+}
+
+/* Add Vazirmatn font */
+@font-face {
+  font-family: 'Vazirmatn';
+  src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/webfonts/Vazirmatn-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/webfonts/Vazirmatn-Bold.woff2') format('woff2');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+} 
