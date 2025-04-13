@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useProducts } from "../hooks/useProducts";
+import { Link } from "react-router-dom";
 
 export default function HomePage() {
   const { products, loading, error, searchProducts } = useProducts();
@@ -112,7 +113,12 @@ export default function HomePage() {
                   </p>
                   <div className="d-flex justify-content-between align-items-center">
                     <span className="h5 mb-0">
-                      ${product.price.toLocaleString()}
+                      {new Intl.NumberFormat("fa-IR", {
+                        style: "currency",
+                        currency: "IRR",
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      }).format(product.price)}
                     </span>
                     <div className="badge bg-success">
                       Stock: {product.stock}
@@ -121,9 +127,12 @@ export default function HomePage() {
                 </div>
                 <div className="card-footer bg-white">
                   <div className="d-grid">
-                    <button className="btn btn-outline-primary">
+                    <Link
+                      to={`/products/${product.id}`}
+                      className="btn btn-outline-primary"
+                    >
                       View Details
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>

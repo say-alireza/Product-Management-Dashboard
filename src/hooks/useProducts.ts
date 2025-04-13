@@ -1,47 +1,42 @@
 import { useState, useEffect } from 'react';
-import { Product } from '../Types/Product';
-import { productAPI } from '../services/api';
+import { mockProductsQuery } from '../Data/mockProducts';
 
-export const useProducts = () => {
+export interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  images: string[];
+  category: string;
+}
+
+export function useProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setProducts(mockProductsQuery({}));
+      setError(null);
+    } catch (err) {
+      setError('خطا در دریافت اطلاعات محصولات');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await productAPI.getAll();
-      setProducts(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred while fetching products');
-    } finally {
-      setLoading(false);
-    }
+  const searchProducts = (query: string) => {
+    const filtered = mockProductsQuery({ search: query });
+    setProducts(filtered);
   };
 
-  const searchProducts = async (query: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await productAPI.search(query);
-      setProducts(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred while searching products');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return {
-    products,
-    loading,
-    error,
-    refreshProducts: fetchProducts,
-    searchProducts
-  };
-}; 
+  return { products, loading, error, searchProducts };
+} 

@@ -5,11 +5,18 @@ export interface Product {
     price: number;
     stock: number;
     images: string[];
-    rating?: number;
     category: string;
+    rating?: number;
   }
   
-  export interface ProductInput extends Omit<Product, 'id'> {}
+  export interface ProductInput {
+    name: string;
+    description: string;
+    price: number;
+    stock: number;
+    images: string[];
+    category: string;
+  }
   
   export interface ProductsQueryParams {
     page?: number;

@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./Pages/HomePage";
-import ProductPage from "./Pages/ProductPage";
+import ProductsPage from "./Pages/ProductsPage";
 import AdminPage from "./Pages/AdminPage";
 import Navbar from "./components/Navbar";
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -14,7 +14,8 @@ function App() {
           <div className="container">
             <Routes>
               <Route path="/" element={<HomePage />} />
-              <Route path="/products/:id" element={<ProductPage />} />
+              <Route path="/products" element={<ProductsPage />} />
+              <Route path="/products/:id" element={<ProductsPage />} />
               <Route path="/admin" element={<AdminPage />} />
             </Routes>
           </div>
