@@ -42,7 +42,7 @@ export default function ProductsPage() {
   if (error) {
     return (
       <div className="alert alert-danger" role="alert">
-        {error}
+        {error?.message || "An error occurred while loading products"}
       </div>
     );
   }

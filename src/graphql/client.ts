@@ -9,10 +9,29 @@ const httpLink = createHttpLink({
   },
 });
 
+const cache = new InMemoryCache({
+  typePolicies: {
+    Query: {
+      fields: {
+        products: {
+          // Merge function for pagination
+          keyArgs: ['search'],
+          merge(existing = [], incoming, { args }) {
+            if (args?.page === 1) {
+              return incoming;
+            }
+            return [...existing, ...incoming];
+          },
+        },
+      },
+    },
+  },
+});
+
 // Create the Apollo Client
 export const client = new ApolloClient({
   link: httpLink,
-  cache: new InMemoryCache(),
+  cache,
   defaultOptions: {
     watchQuery: {
       fetchPolicy: 'cache-and-network',
