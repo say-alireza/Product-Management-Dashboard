@@ -4,13 +4,10 @@ export default function Navbar() {
   const location = useLocation();
 
   return (
-    <nav
-      className="navbar navbar-expand-md bg-white shadow-sm sticky-top"
-      dir="rtl"
-    >
+    <nav className="navbar navbar-expand-md bg-white shadow-sm sticky-top">
       <div className="container">
         <Link to="/" className="navbar-brand fw-bold text-primary">
-          فروشگاه آنلاین
+          Online Store
         </Link>
 
         <button
@@ -26,7 +23,7 @@ export default function Navbar() {
         </button>
 
         <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav me-auto mb-2 mb-md-0">
+          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
               <Link
                 to="/"
@@ -34,8 +31,7 @@ export default function Navbar() {
                   location.pathname === "/" ? "active" : ""
                 }`}
               >
-                <i className="bi bi-house-door ms-1"></i>
-                صفحه اصلی
+                Home
               </Link>
             </li>
             <li className="nav-item">
@@ -45,53 +41,22 @@ export default function Navbar() {
                   location.pathname === "/products" ? "active" : ""
                 }`}
               >
-                <i className="bi bi-grid ms-1"></i>
-                محصولات
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link
-                to="/categories"
-                className={`nav-link ${
-                  location.pathname === "/categories" ? "active" : ""
-                }`}
-              >
-                <i className="bi bi-collection ms-1"></i>
-                دسته‌بندی‌ها
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link
-                to="/about"
-                className={`nav-link ${
-                  location.pathname === "/about" ? "active" : ""
-                }`}
-              >
-                <i className="bi bi-info-circle ms-1"></i>
-                درباره ما
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link
-                to="/admin"
-                className={`nav-link ${
-                  location.pathname === "/admin" ? "active" : ""
-                } text-danger`}
-              >
-                <i className="bi bi-shield-lock ms-1"></i>
-                پنل مدیریت
+                Products
               </Link>
             </li>
           </ul>
 
           <div className="d-flex gap-2">
+            <Link to="/admin" className="btn btn-outline-danger">
+              Admin Panel
+            </Link>
             <button className="btn btn-outline-primary">
-              <i className="bi bi-box-arrow-in-left ms-1"></i>
-              ورود
+              <i className="bi bi-box-arrow-in-left me-1"></i>
+              Login
             </button>
             <button className="btn btn-primary">
-              <i className="bi bi-person-plus ms-1"></i>
-              ثبت نام
+              <i className="bi bi-person-plus me-1"></i>
+              Register
             </button>
           </div>
         </div>
