@@ -22,8 +22,11 @@ export default function Navbar() {
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+        <div
+          className="collapse navbar-collapse justify-content-between"
+          id="navbarNav"
+        >
+          <ul className="navbar-nav">
             <li className="nav-item">
               <Link
                 to="/"
@@ -46,19 +49,9 @@ export default function Navbar() {
             </li>
           </ul>
 
-          <div className="d-flex gap-2">
-            <Link to="/admin" className="btn btn-outline-danger">
-              Admin Panel
-            </Link>
-            <button className="btn btn-outline-primary">
-              <i className="bi bi-box-arrow-in-left me-1"></i>
-              Login
-            </button>
-            <button className="btn btn-primary">
-              <i className="bi bi-person-plus me-1"></i>
-              Register
-            </button>
-          </div>
+          <Link to="/admin" className="btn btn-outline-danger">
+            Admin Panel
+          </Link>
         </div>
       </div>
     </nav>

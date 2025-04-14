@@ -1,27 +1,7 @@
 import { Link } from "react-router-dom";
-import { useProducts } from "../hooks/useProducts";
+import { Button } from "../components/Button";
 
 export default function HomePage() {
-  const { loading, error } = useProducts();
-
-  if (loading) {
-    return (
-      <div className="text-center py-5">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="alert alert-danger" role="alert">
-        {error}
-      </div>
-    );
-  }
-
   return (
     <div className="container py-4">
       {/* Hero Section */}
@@ -32,14 +12,12 @@ export default function HomePage() {
             Complete collection of products with the best quality and affordable
             prices
           </p>
-          <div className="d-flex gap-3">
-            <Link to="/products" className="btn btn-primary rounded-2">
-              View Products
-            </Link>
-            <Link to="/contact" className="btn btn-outline-primary rounded-2">
-              Contact Us
-            </Link>
-          </div>
+          <Button
+            variant="primary"
+            onClick={() => (window.location.href = "/products")}
+          >
+            View Products
+          </Button>
         </div>
         <div className="col-md-6">
           <img

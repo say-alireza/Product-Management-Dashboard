@@ -1,6 +1,10 @@
 import { useState, FormEvent } from "react";
 import { useProducts } from "../hooks/useProducts";
 import { Product, ProductInput } from "../Types/Product";
+import { Modal } from "../components/Modal";
+import { Button } from "../components/Button";
+import { FormInput, FormTextArea, FormFileInput } from "../components/Form";
+import { ProductCard } from "../components/ProductCard";
 
 export default function AdminPage() {
   const {
@@ -77,8 +81,6 @@ export default function AdminPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
-      // In a real app, you would upload these files to a server
-      // For now, we'll create object URLs
       const imageUrls = Array.from(files).map((file) =>
         URL.createObjectURL(file)
       );
@@ -145,12 +147,9 @@ export default function AdminPage() {
           <h2 className="mb-0">Admin Panel</h2>
           <p className="text-muted mb-0">Manage products and inventory</p>
         </div>
-        <button
-          className="btn btn-primary rounded-2"
-          onClick={handleAddProduct}
-        >
+        <Button variant="primary" onClick={handleAddProduct}>
           Add New Product
-        </button>
+        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -191,237 +190,104 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* Products Table */}
-      <div className="card border-0 shadow-sm">
-        <div className="card-body">
-          <div className="table-responsive">
-            <table className="table table-hover align-middle">
-              <thead className="table-light">
-                <tr>
-                  <th>Image</th>
-                  <th>Product Name</th>
-                  <th>Category</th>
-                  <th>Price</th>
-                  <th>Stock</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((product) => (
-                  <tr key={product.id}>
-                    <td>
-                      <img
-                        src={product.images[0]}
-                        alt={product.name}
-                        className="rounded"
-                        style={{
-                          width: "50px",
-                          height: "50px",
-                          objectFit: "contain",
-                        }}
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = "/placeholder.svg";
-                        }}
-                      />
-                    </td>
-                    <td>{product.name}</td>
-                    <td>
-                      <span className="badge bg-light text-dark">
-                        {product.category}
-                      </span>
-                    </td>
-                    <td>
-                      {new Intl.NumberFormat("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0,
-                      }).format(product.price)}
-                    </td>
-                    <td>{product.stock}</td>
-                    <td>
-                      <span
-                        className={`badge ${
-                          product.stock > 0 ? "bg-success" : "bg-danger"
-                        }`}
-                      >
-                        {product.stock > 0 ? "In Stock" : "Out of Stock"}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="d-flex gap-2">
-                        <button
-                          className="btn btn-sm btn-outline-primary"
-                          onClick={() => handleEditProduct(product)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => handleDeleteProduct(product.id)}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {/* Products Grid */}
+      <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {products.map((product) => (
+          <div key={product.id} className="col">
+            <ProductCard
+              product={product}
+              isAdmin={true}
+              onEdit={handleEditProduct}
+              onDelete={handleDeleteProduct}
+            />
           </div>
-        </div>
+        ))}
       </div>
 
-      {/* Add/Edit Product Modal */}
-      {isModalOpen && (
-        <div
-          className="modal show d-block"
-          style={{ background: "rgba(0,0,0,0.5)" }}
-          tabIndex={-1}
-        >
-          <div className="modal-dialog modal-lg" style={{ marginTop: "2rem" }}>
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">
-                  {modalMode === "create" ? "Add New Product" : "Edit Product"}
-                </h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setIsModalOpen(false)}
-                ></button>
-              </div>
-              <form onSubmit={handleSubmit}>
-                <div className="modal-body">
-                  {formError && (
-                    <div className="alert alert-danger">{formError}</div>
-                  )}
-                  <div className="row mb-3">
-                    <div className="col-md-6">
-                      <label className="form-label">Product Name</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label">Category</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="category"
-                        value={formData.category}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Description</label>
-                    <textarea
-                      className="form-control"
-                      name="description"
-                      value={formData.description}
-                      onChange={handleInputChange}
-                      rows={3}
-                      required
-                    />
-                  </div>
-                  <div className="row mb-3">
-                    <div className="col-md-6">
-                      <label className="form-label">Price</label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        name="price"
-                        value={formData.price}
-                        onChange={handleInputChange}
-                        min="0"
-                        step="0.01"
-                        required
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label className="form-label">Stock</label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        name="stock"
-                        value={formData.stock}
-                        onChange={handleInputChange}
-                        min="0"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Product Images</label>
-                    <input
-                      type="file"
-                      className="form-control"
-                      accept="image/*"
-                      multiple
-                      onChange={handleFileChange}
-                    />
-                    {formData.images.length > 0 && (
-                      <div className="d-flex gap-2 mt-2 overflow-auto">
-                        {formData.images.map((image, index) => (
-                          <img
-                            key={index}
-                            src={image}
-                            alt={`Preview ${index + 1}`}
-                            className="img-thumbnail"
-                            style={{
-                              width: "100px",
-                              height: "100px",
-                              objectFit: "cover",
-                            }}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary"
-                    onClick={() => setIsModalOpen(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <span
-                          className="spinner-border spinner-border-sm me-2"
-                          role="status"
-                          aria-hidden="true"
-                        ></span>
-                        Saving...
-                      </>
-                    ) : modalMode === "create" ? (
-                      "Add Product"
-                    ) : (
-                      "Save Changes"
-                    )}
-                  </button>
-                </div>
-              </form>
+      {/* Product Form Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={modalMode === "create" ? "Add New Product" : "Edit Product"}
+        footer={
+          <>
+            <Button
+              variant="outline-secondary"
+              onClick={() => setIsModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="primary" type="submit" isLoading={isSubmitting}>
+              {modalMode === "create" ? "Add Product" : "Save Changes"}
+            </Button>
+          </>
+        }
+      >
+        <form onSubmit={handleSubmit}>
+          {formError && <div className="alert alert-danger">{formError}</div>}
+          <div className="row mb-3">
+            <div className="col-md-6">
+              <FormInput
+                label="Product Name"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="col-md-6">
+              <FormInput
+                label="Category"
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                required
+              />
             </div>
           </div>
-        </div>
-      )}
+          <FormTextArea
+            label="Description"
+            name="description"
+            value={formData.description}
+            onChange={handleInputChange}
+            rows={3}
+            required
+          />
+          <div className="row mb-3">
+            <div className="col-md-6">
+              <FormInput
+                label="Price"
+                type="number"
+                name="price"
+                value={formData.price}
+                onChange={handleInputChange}
+                min="0"
+                step="0.01"
+                required
+              />
+            </div>
+            <div className="col-md-6">
+              <FormInput
+                label="Stock"
+                type="number"
+                name="stock"
+                value={formData.stock}
+                onChange={handleInputChange}
+                min="0"
+                required
+              />
+            </div>
+          </div>
+          <FormFileInput
+            label="Product Images"
+            name="images"
+            accept="image/*"
+            multiple
+            onChange={handleFileChange}
+            preview={formData.images}
+          />
+        </form>
+      </Modal>
     </div>
   );
 }

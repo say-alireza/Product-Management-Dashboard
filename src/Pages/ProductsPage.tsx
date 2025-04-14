@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useProducts } from "../hooks/useProducts";
-import { Product } from "../Types/Product";
+import { Button } from "../components/Button";
+import { ProductCard } from "../components/ProductCard";
+import { FormInput } from "../components/Form";
 
 export default function ProductsPage() {
   const { products, loading, error } = useProducts();
@@ -18,7 +20,7 @@ export default function ProductsPage() {
     ...new Set(products.map((p) => p.category)),
   ] as string[];
 
-  const filteredProducts = products.filter((product: Product) => {
+  const filteredProducts = products.filter((product) => {
     const matchesCategory =
       selectedCategory === "all" || product.category === selectedCategory;
     const matchesSearch = product.name
@@ -49,89 +51,64 @@ export default function ProductsPage() {
     <div className="container py-4">
       {/* Search and Filter */}
       <div className="row mb-4">
-        <div className="col-md-6">
+        <div className="col-md-6 mb-3 mb-md-0">
           <div className="input-group">
-            <input
+            <FormInput
               type="text"
-              className="form-control rounded-start"
               placeholder="Search products..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setSearchQuery(e.target.value)
+              }
+              className="rounded-end-0"
             />
-            <button
-              className="btn btn-outline-secondary rounded-end"
-              type="button"
-            >
+            <Button variant="outline-secondary" className="rounded-start-0">
               Search
-            </button>
+            </Button>
           </div>
         </div>
         <div className="col-md-6">
-          <div className="d-flex gap-2">
-            {categories.map((category: string) => (
-              <button
+          <div className="d-flex gap-2 flex-wrap">
+            {categories.map((category) => (
+              <Button
                 key={category}
-                className={`btn ${
-                  selectedCategory === category
-                    ? "btn-primary"
-                    : "btn-outline-primary"
-                } rounded-2`}
+                variant={
+                  selectedCategory === category ? "primary" : "outline-primary"
+                }
+                size="sm"
                 onClick={() => setSelectedCategory(category)}
               >
                 {category === "all" ? "All" : category}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
       </div>
 
       {/* Products Grid */}
-      <div className="row row-cols-1 row-cols-md-3 g-4">
-        {filteredProducts.map((product: Product) => (
+      <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {filteredProducts.map((product) => (
           <div key={product.id} className="col">
-            <div className="card h-100 border-0 shadow-sm">
-              <img
-                src={product.images[0]}
-                className="card-img-top"
-                alt={product.name}
-                style={{ height: "200px", objectFit: "cover" }}
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = "/placeholder.svg";
-                }}
-              />
-              <div className="card-body">
-                <h5 className="card-title">{product.name}</h5>
-                <div className="d-flex justify-content-between align-items-center">
-                  <span className="h5 mb-0">
-                    {new Intl.NumberFormat("en-US", {
-                      style: "currency",
-                      currency: "USD",
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0,
-                    }).format(product.price)}
-                  </span>
-                  <span
-                    className={`badge ${
-                      product.stock > 0 ? "bg-success" : "bg-danger"
-                    }`}
-                  >
-                    {product.stock > 0 ? "In Stock" : "Out of Stock"}
-                  </span>
-                </div>
-              </div>
-              <div className="card-footer bg-white border-top-0">
-                <Link
-                  to={`/products/${product.id}`}
-                  className="btn btn-primary w-100 rounded-2"
-                >
-                  View Details
-                </Link>
-              </div>
-            </div>
+            <ProductCard product={product} />
           </div>
         ))}
       </div>
+
+      {filteredProducts.length === 0 && (
+        <div className="text-center py-5">
+          <h3 className="text-muted">No products found</h3>
+          <Button
+            variant="outline-primary"
+            className="mt-3"
+            onClick={() => {
+              setSelectedCategory("all");
+              setSearchQuery("");
+            }}
+          >
+            Clear Filters
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
