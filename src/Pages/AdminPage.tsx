@@ -171,7 +171,7 @@ export default function AdminPage() {
               <div className="d-flex flex-column">
                 <h6 className="card-title mb-3">In Stock Products</h6>
                 <h2 className="card-text mb-0 display-6">
-                  {products.filter((p: Product) => p.stock > 0).length}
+                  {products.filter((p) => p.stock > 0).length}
                 </h2>
               </div>
             </div>
@@ -183,7 +183,7 @@ export default function AdminPage() {
               <div className="d-flex flex-column">
                 <h6 className="card-title mb-3">Out of Stock Products</h6>
                 <h2 className="card-text mb-0 display-6">
-                  {products.filter((p: Product) => p.stock === 0).length}
+                  {products.filter((p) => p.stock === 0).length}
                 </h2>
               </div>
             </div>
@@ -198,17 +198,17 @@ export default function AdminPage() {
             <table className="table table-hover align-middle">
               <thead className="table-light">
                 <tr>
-                  <th className="border-0">Image</th>
-                  <th className="border-0">Product Name</th>
-                  <th className="border-0">Category</th>
-                  <th className="border-0">Price</th>
-                  <th className="border-0">Stock</th>
-                  <th className="border-0">Status</th>
-                  <th className="border-0">Actions</th>
+                  <th>Image</th>
+                  <th>Product Name</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>Stock</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {products.map((product: Product) => (
+                {products.map((product) => (
                   <tr key={product.id}>
                     <td>
                       <img
@@ -251,15 +251,15 @@ export default function AdminPage() {
                       </span>
                     </td>
                     <td>
-                      <div className="btn-group">
+                      <div className="d-flex gap-2">
                         <button
-                          className="btn btn-sm btn-outline-primary rounded-2"
+                          className="btn btn-sm btn-outline-primary"
                           onClick={() => handleEditProduct(product)}
                         >
                           Edit
                         </button>
                         <button
-                          className="btn btn-sm btn-outline-danger rounded-2"
+                          className="btn btn-sm btn-outline-danger"
                           onClick={() => handleDeleteProduct(product.id)}
                         >
                           Delete
@@ -274,11 +274,15 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* Product Modal */}
+      {/* Add/Edit Product Modal */}
       {isModalOpen && (
-        <div className="modal show d-block" tabIndex={-1}>
-          <div className="modal-dialog modal-lg">
-            <div className="modal-content border-0 shadow">
+        <div
+          className="modal show d-block"
+          style={{ background: "rgba(0,0,0,0.5)" }}
+          tabIndex={-1}
+        >
+          <div className="modal-dialog modal-lg" style={{ marginTop: "2rem" }}>
+            <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">
                   {modalMode === "create" ? "Add New Product" : "Edit Product"}
@@ -322,28 +326,26 @@ export default function AdminPage() {
                     <label className="form-label">Description</label>
                     <textarea
                       className="form-control"
-                      rows={3}
                       name="description"
                       value={formData.description}
                       onChange={handleInputChange}
+                      rows={3}
                       required
-                    ></textarea>
+                    />
                   </div>
                   <div className="row mb-3">
                     <div className="col-md-6">
                       <label className="form-label">Price</label>
-                      <div className="input-group">
-                        <input
-                          type="number"
-                          className="form-control"
-                          name="price"
-                          value={formData.price}
-                          onChange={handleInputChange}
-                          min="0"
-                          required
-                        />
-                        <span className="input-group-text">USD</span>
-                      </div>
+                      <input
+                        type="number"
+                        className="form-control"
+                        name="price"
+                        value={formData.price}
+                        onChange={handleInputChange}
+                        min="0"
+                        step="0.01"
+                        required
+                      />
                     </div>
                     <div className="col-md-6">
                       <label className="form-label">Stock</label>
@@ -374,10 +376,10 @@ export default function AdminPage() {
                             key={index}
                             src={image}
                             alt={`Preview ${index + 1}`}
-                            className="rounded"
+                            className="img-thumbnail"
                             style={{
-                              width: "80px",
-                              height: "80px",
+                              width: "100px",
+                              height: "100px",
                               objectFit: "cover",
                             }}
                           />
@@ -386,12 +388,11 @@ export default function AdminPage() {
                     )}
                   </div>
                 </div>
-                <div className="modal-footer border-top-0">
+                <div className="modal-footer">
                   <button
                     type="button"
                     className="btn btn-outline-secondary"
                     onClick={() => setIsModalOpen(false)}
-                    disabled={isSubmitting}
                   >
                     Cancel
                   </button>
@@ -407,10 +408,10 @@ export default function AdminPage() {
                           role="status"
                           aria-hidden="true"
                         ></span>
-                        Submitting...
+                        Saving...
                       </>
                     ) : modalMode === "create" ? (
-                      "Add"
+                      "Add Product"
                     ) : (
                       "Save Changes"
                     )}
@@ -419,7 +420,6 @@ export default function AdminPage() {
               </form>
             </div>
           </div>
-          <div className="modal-backdrop show"></div>
         </div>
       )}
     </div>
