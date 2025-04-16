@@ -1,6 +1,48 @@
 import { Button } from "../components/Button";
 
-export default function HomePage() {
+/**
+ * Constants for the homepage
+ */
+const HERO_IMAGE = {
+  src: "/images/Shop-Anytime-Anywhere (1).jpg",
+  alt: "Online shopping experience",
+  fallback: "/placeholder.svg",
+};
+
+const HERO_STYLES = {
+  image: {
+    maxHeight: "400px",
+    width: "100%",
+    objectFit: "cover" as const,
+    objectPosition: "center",
+  },
+  overlay: {
+    background:
+      "linear-gradient(45deg, rgba(13,110,253,0.1), rgba(13,110,253,0.05))",
+    pointerEvents: "none" as const,
+  },
+};
+
+/**
+ * HomePage component that displays the main landing page
+ * @returns JSX.Element
+ */
+export default function HomePage(): JSX.Element {
+  /**
+   * Handle image load error by setting fallback image
+   */
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const target = e.target as HTMLImageElement;
+    target.src = HERO_IMAGE.fallback;
+  };
+
+  /**
+   * Navigate to products page
+   */
+  const handleViewProducts = () => {
+    window.location.href = "/products";
+  };
+
   return (
     <div className="container py-4">
       {/* Hero Section */}
@@ -12,37 +54,22 @@ export default function HomePage() {
             affordable prices. Shop with confidence and enjoy a seamless online
             shopping experience.
           </p>
-          <Button
-            variant="primary"
-            onClick={() => (window.location.href = "/products")}
-          >
+          <Button variant="primary" onClick={handleViewProducts}>
             View Products
           </Button>
         </div>
         <div className="col-md-6">
           <div className="position-relative">
             <img
-              src="/images/Shop-Anytime-Anywhere (1).jpg"
-              alt="Online shopping experience"
+              src={HERO_IMAGE.src}
+              alt={HERO_IMAGE.alt}
               className="img-fluid rounded shadow-lg"
-              style={{
-                maxHeight: "400px",
-                width: "100%",
-                objectFit: "cover",
-                objectPosition: "center",
-              }}
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = "/placeholder.svg";
-              }}
+              style={HERO_STYLES.image}
+              onError={handleImageError}
             />
             <div
               className="position-absolute top-0 start-0 w-100 h-100 rounded"
-              style={{
-                background:
-                  "linear-gradient(45deg, rgba(13,110,253,0.1), rgba(13,110,253,0.05))",
-                pointerEvents: "none",
-              }}
+              style={HERO_STYLES.overlay}
             />
           </div>
         </div>
