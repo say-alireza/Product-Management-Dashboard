@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 
 # 🛍️ Product Management Dashboard
 
