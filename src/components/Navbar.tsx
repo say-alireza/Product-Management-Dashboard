@@ -1,10 +1,17 @@
 import { Link, useLocation } from "react-router-dom";
+import { ColorModeSwitch } from "./ColorModeSwitch";
+import { useColorMode } from "../contexts/ColorModeContext";
 
 export default function Navbar() {
   const location = useLocation();
+  const { colorMode } = useColorMode();
 
   return (
-    <nav className="navbar navbar-expand-md bg-white shadow-sm sticky-top">
+    <nav
+      className={`navbar navbar-expand-md shadow-sm sticky-top ${
+        colorMode === "light" ? "bg-white" : "bg-dark"
+      }`}
+    >
       <div className="container">
         <Link to="/" className="navbar-brand fw-bold text-primary">
           Online Store
@@ -58,6 +65,7 @@ export default function Navbar() {
               </Link>
             </li>
           </ul>
+          <ColorModeSwitch />
         </div>
       </div>
     </nav>

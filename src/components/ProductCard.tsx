@@ -111,7 +111,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 ></i>
               ))}
             </div>
-            <small className="text-muted">
+            <small className="text-muted me-2">
               ({product.rating.count} reviews)
             </small>
           </div>
