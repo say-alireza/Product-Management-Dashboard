@@ -10,6 +10,7 @@ const FormInput: React.FC<FormInputProps> = ({
   error,
   className = "",
   ...props
+  // ds
 }) => {
   return (
     <div className={label ? "mb-3" : ""}>
