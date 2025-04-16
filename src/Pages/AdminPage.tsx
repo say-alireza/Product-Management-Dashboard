@@ -3,7 +3,7 @@ import { useProducts } from "../hooks/useProducts";
 import { Product, ProductInput } from "../Types/Product";
 import { Modal } from "../components/Modal";
 import { Button } from "../components/Button";
-import { FormInput, FormTextArea, FormFileInput } from "../components/Form";
+import { FormInput, FormTextArea } from "../components/Form";
 import { ProductCard } from "../components/ProductCard";
 
 export default function AdminPage() {
@@ -19,28 +19,48 @@ export default function AdminPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
   const [formData, setFormData] = useState<ProductInput>({
-    name: "",
+    title: "",
     description: "",
     price: 0,
-    stock: 0,
     category: "",
-    images: [],
+    image: "",
   });
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [operationError, setOperationError] = useState<string | null>(null);
+
+  const getUniqueCategories = (): string[] => {
+    return [...new Set(products.map((product) => product.category))].sort();
+  };
+
+  const calculateAverageRating = (products: Product[]): string => {
+    if (products.length === 0) return "0.0";
+    const totalRating = products.reduce(
+      (acc: number, p: Product) => acc + (p.rating?.rate || 0),
+      0
+    );
+    return (totalRating / products.length).toFixed(1);
+  };
+
+  const calculateTotalReviews = (products: Product[]): number => {
+    return products.reduce(
+      (acc: number, p: Product) => acc + (p.rating?.count || 0),
+      0
+    );
+  };
 
   const handleAddProduct = () => {
     setModalMode("create");
     setSelectedProduct(null);
     setFormData({
-      name: "",
+      title: "",
       description: "",
       price: 0,
-      stock: 0,
       category: "",
-      images: [],
+      image: "",
     });
     setFormError(null);
+    setOperationError(null);
     setIsModalOpen(true);
   };
 
@@ -48,28 +68,37 @@ export default function AdminPage() {
     setModalMode("edit");
     setSelectedProduct(product);
     setFormData({
-      name: product.name,
+      title: product.title,
       description: product.description,
       price: product.price,
-      stock: product.stock,
       category: product.category,
-      images: product.images,
+      image: product.image,
     });
     setFormError(null);
+    setOperationError(null);
     setIsModalOpen(true);
   };
 
   const handleDeleteProduct = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
-      const result = await deleteProduct(id);
-      if (!result.success) {
-        alert(result.error);
+      try {
+        setOperationError(null);
+        const success = await deleteProduct(id);
+        if (!success) {
+          setOperationError("Failed to delete product");
+        }
+      } catch (err) {
+        setOperationError(
+          err instanceof Error ? err.message : "Error deleting product"
+        );
       }
     }
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value, type } = e.target;
     setFormData((prev) => ({
@@ -78,40 +107,29 @@ export default function AdminPage() {
     }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files) {
-      const imageUrls = Array.from(files).map((file) =>
-        URL.createObjectURL(file)
-      );
-      setFormData((prev) => ({
-        ...prev,
-        images: [...prev.images, ...imageUrls],
-      }));
-    }
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
+    setOperationError(null);
     setIsSubmitting(true);
 
     try {
       if (modalMode === "create") {
-        const result = await createProduct(formData);
-        if (result.success) {
-          setIsModalOpen(false);
-        } else {
-          setFormError(result.error || "Error creating product");
-        }
+        await createProduct(formData);
+        setIsModalOpen(false);
       } else if (selectedProduct) {
-        const result = await updateProduct(selectedProduct.id, formData);
-        if (result.success) {
-          setIsModalOpen(false);
-        } else {
-          setFormError(result.error || "Error updating product");
-        }
+        await updateProduct(selectedProduct.id, formData);
+        setIsModalOpen(false);
       }
+
+      // Reset form data after successful submission
+      setFormData({
+        title: "",
+        category: "",
+        price: 0,
+        image: "",
+        description: "",
+      });
     } catch (err) {
       setFormError(
         err instanceof Error ? err.message : "Error submitting data"
@@ -133,8 +151,15 @@ export default function AdminPage() {
 
   if (error) {
     return (
-      <div className="alert alert-danger" role="alert">
-        {error}
+      <div className="container py-5">
+        <div className="alert alert-danger" role="alert">
+          <h4 className="alert-heading">Error Loading Products</h4>
+          <p>{error.message || "An error occurred while loading products"}</p>
+          <hr />
+          <p className="mb-0">
+            Please try again later or contact support if the problem persists.
+          </p>
+        </div>
       </div>
     );
   }
@@ -152,6 +177,22 @@ export default function AdminPage() {
         </Button>
       </div>
 
+      {/* Operation Error Display */}
+      {operationError && (
+        <div
+          className="alert alert-danger alert-dismissible fade show mb-4"
+          role="alert"
+        >
+          {operationError}
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setOperationError(null)}
+            aria-label="Close"
+          ></button>
+        </div>
+      )}
+
       {/* Stats Cards */}
       <div className="row g-4 mb-4">
         <div className="col-md-4">
@@ -168,21 +209,21 @@ export default function AdminPage() {
           <div className="card border-0 bg-success bg-gradient h-100">
             <div className="card-body text-white">
               <div className="d-flex flex-column">
-                <h6 className="card-title mb-3">In Stock Products</h6>
+                <h6 className="card-title mb-3">Average Rating</h6>
                 <h2 className="card-text mb-0 display-6">
-                  {products.filter((p) => p.stock > 0).length}
+                  {calculateAverageRating(products)}
                 </h2>
               </div>
             </div>
           </div>
         </div>
         <div className="col-md-4">
-          <div className="card border-0 bg-danger bg-gradient h-100">
+          <div className="card border-0 bg-info bg-gradient h-100">
             <div className="card-body text-white">
               <div className="d-flex flex-column">
-                <h6 className="card-title mb-3">Out of Stock Products</h6>
+                <h6 className="card-title mb-3">Total Reviews</h6>
                 <h2 className="card-text mb-0 display-6">
-                  {products.filter((p) => p.stock === 0).length}
+                  {calculateTotalReviews(products)}
                 </h2>
               </div>
             </div>
@@ -192,10 +233,10 @@ export default function AdminPage() {
 
       {/* Products Grid */}
       <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        {products.map((product) => (
+        {products.map((product: Product) => (
           <div key={product.id} className="col">
             <ProductCard
-              product={product}
+              productId={product.id}
               isAdmin={true}
               onEdit={handleEditProduct}
               onDelete={handleDeleteProduct}
@@ -210,84 +251,100 @@ export default function AdminPage() {
         onClose={() => setIsModalOpen(false)}
         title={modalMode === "create" ? "Add New Product" : "Edit Product"}
         footer={
-          <>
-            <Button
-              variant="outline-secondary"
-              onClick={() => setIsModalOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button variant="primary" type="submit" isLoading={isSubmitting}>
-              {modalMode === "create" ? "Add Product" : "Save Changes"}
-            </Button>
-          </>
+          <Button
+            variant="outline-secondary"
+            onClick={() => setIsModalOpen(false)}
+          >
+            Cancel
+          </Button>
         }
       >
         <form onSubmit={handleSubmit}>
-          {formError && <div className="alert alert-danger">{formError}</div>}
+          {formError && (
+            <div className="alert alert-danger">
+              <p className="mb-0">{formError}</p>
+            </div>
+          )}
           <div className="row mb-3">
             <div className="col-md-6">
               <FormInput
-                label="Product Name"
-                name="name"
-                value={formData.name}
+                label="Product Title"
+                name="title"
+                value={formData.title}
                 onChange={handleInputChange}
                 required
               />
             </div>
             <div className="col-md-6">
-              <FormInput
-                label="Category"
-                name="category"
-                value={formData.category}
-                onChange={handleInputChange}
-                required
-              />
+              <div className="mb-3">
+                <label htmlFor="category" className="form-label">
+                  Category
+                </label>
+                <select
+                  className="form-select"
+                  id="category"
+                  name="category"
+                  value={formData.category}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">Select a category</option>
+                  {getUniqueCategories().map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
-          <FormTextArea
-            label="Description"
-            name="description"
-            value={formData.description}
-            onChange={handleInputChange}
-            rows={3}
-            required
-          />
           <div className="row mb-3">
             <div className="col-md-6">
               <FormInput
                 label="Price"
-                type="number"
                 name="price"
+                type="number"
+                step="0.01"
                 value={formData.price}
                 onChange={handleInputChange}
-                min="0"
-                step="0.01"
                 required
               />
             </div>
             <div className="col-md-6">
               <FormInput
-                label="Stock"
-                type="number"
-                name="stock"
-                value={formData.stock}
+                label="Image URL"
+                name="image"
+                value={formData.image}
                 onChange={handleInputChange}
-                min="0"
                 required
               />
             </div>
           </div>
-          <FormFileInput
-            label="Product Images"
-            name="images"
-            accept="image/*"
-            multiple
-            onChange={handleFileChange}
-            preview={formData.images}
-          />
+          <div className="mb-3">
+            <FormTextArea
+              label="Description"
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              required
+              rows={4}
+            />
+          </div>
+          <div className="text-end">
+            <Button variant="primary" type="submit" disabled={isSubmitting}>
+              {modalMode === "create" ? "Add Product" : "Save Changes"}
+            </Button>
+          </div>
         </form>
       </Modal>
+
+      <style>
+        {`
+          .btn-close {
+            margin-right: 0.2rem;
+          }
+        `}
+      </style>
     </div>
   );
 }

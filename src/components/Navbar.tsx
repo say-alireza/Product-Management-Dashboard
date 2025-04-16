@@ -47,11 +47,17 @@ export default function Navbar() {
                 Products
               </Link>
             </li>
+            <li className="nav-item">
+              <Link
+                to="/admin"
+                className={`nav-link ${
+                  location.pathname === "/admin" ? "active" : ""
+                }`}
+              >
+                Admin
+              </Link>
+            </li>
           </ul>
-
-          <Link to="/admin" className="btn btn-outline-danger">
-            Admin Panel
-          </Link>
         </div>
       </div>
     </nav>

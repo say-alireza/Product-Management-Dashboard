@@ -1,54 +1,110 @@
-# React + TypeScript + Vite
+# Product Management Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React application for managing products with GraphQL integration with Shopify's Storefront API.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Product listing with filtering and search
+- Product details view
+- Admin panel for CRUD operations on products
+- Integration with Shopify's Storefront API via GraphQL
+- Responsive design with Bootstrap
 
-## Expanding the ESLint configuration
+## Prerequisites
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js (v14 or higher)
+- npm (v6 or higher)
+- A Shopify store with Storefront API access
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## Setup
+
+1. Clone the repository:
+
+   ```
+   git clone <repository-url>
+   cd product-management-dashboard
+   ```
+
+2. Install dependencies:
+
+   ```
+   npm install
+   ```
+
+3. Create a `.env` file in the root directory with your Shopify API token:
+
+   ```
+   SHOPIFY_STOREFRONT_TOKEN=your_shopify_storefront_access_token
+   ```
+
+4. Update the Shopify store URL in `src/graphql/client.ts`:
+   ```typescript
+   const httpLink = createHttpLink({
+     uri: "https://your-store.myshopify.com/api/2024-01/graphql.json",
+     // ...
+   });
+   ```
+
+## Running the Application
+
+### Development Mode
+
+To run both the Vite development server and the proxy server:
+
+```
+npm run dev:all
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+This will start:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- Vite development server on http://localhost:5173
+- Proxy server on http://localhost:3000
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+### Production Build
+
+1. Build the application:
+
+   ```
+   npm run build
+   ```
+
+2. Start the server:
+   ```
+   npm run server
+   ```
+
+The application will be available at http://localhost:3000.
+
+## Project Structure
+
+- `src/` - Source code
+  - `components/` - Reusable UI components
+  - `graphql/` - GraphQL schema and client configuration
+  - `hooks/` - Custom React hooks
+  - `Pages/` - Page components
+  - `Types/` - TypeScript type definitions
+  - `Data/` - Mock data and utilities
+- `server.js` - Express server for proxying requests to Shopify API
+- `vite.config.ts` - Vite configuration
+
+## Troubleshooting
+
+### CORS Issues
+
+If you encounter CORS issues when connecting to Shopify's API, make sure:
+
+1. The proxy server is running correctly
+2. Your Shopify Storefront API token is valid
+3. The Shopify store URL is correct
+
+### GraphQL Errors
+
+If you see GraphQL errors in the console:
+
+1. Check that your Shopify Storefront API token has the necessary permissions
+2. Verify that the GraphQL queries in `src/graphql/schema.ts` match your Shopify store's schema
+3. Check the network tab in your browser's developer tools for detailed error messages
+
+## License
+
+MIT

@@ -34,7 +34,7 @@ export const Modal: React.FC<ModalProps> = ({
             <h5 className="modal-title">{title}</h5>
             <button
               type="button"
-              className="btn-close"
+              className="btn-close me-2"
               onClick={onClose}
               aria-label="Close"
             ></button>

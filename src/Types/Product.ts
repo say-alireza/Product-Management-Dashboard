@@ -1,25 +1,26 @@
 export interface Product {
     id: string;
-    name: string;
-    description: string;
+    title: string;
     price: number;
-    stock: number;
-    images: string[];
+    description: string;
     category: string;
-    rating?: number;
+    image: string;
+    rating?: {
+      rate: number;
+      count: number;
+    };
   }
   
   export interface ProductInput {
-    name: string;
-    description: string;
+    title: string;
     price: number;
-    stock: number;
-    images: string[];
+    description: string;
     category: string;
+    image: string;
   }
   
   export interface ProductsQueryParams {
-    page?: number;
     limit?: number;
-    search?: string;
+    sort?: string;
+    order?: string;
   }

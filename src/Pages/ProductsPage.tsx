@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useProducts } from "../hooks/useProducts";
 import { Button } from "../components/Button";
 import { ProductCard } from "../components/ProductCard";
 import { FormInput } from "../components/Form";
+import { Product } from "../Types/Product";
+import axios from "axios";
 
 export default function ProductsPage() {
-  const { products, loading, error } = useProducts();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
   const [selectedCategory, setSelectedCategory] = useState<string>(
     searchParams.get("category") || "all"
@@ -15,19 +18,62 @@ export default function ProductsPage() {
     searchParams.get("search") || ""
   );
 
+  useEffect(() => {
+    const fetchProducts = () => {
+      setLoading(true);
+      setError(null);
+
+      axios
+        .get("https://fakestoreapi.com/products")
+        .then((response) => {
+          // Transform the API response to match our Product type
+          const transformedProducts = response.data.map(
+            (apiProduct: any): Product => ({
+              id: apiProduct.id.toString(),
+              title: apiProduct.title,
+              price: apiProduct.price,
+              description: apiProduct.description,
+              category: apiProduct.category,
+              image: apiProduct.image,
+              rating: apiProduct.rating,
+            })
+          );
+          setProducts(transformedProducts);
+          setLoading(false);
+        })
+        .catch((err) => {
+          setError(err.message || "Failed to load products");
+          setLoading(false);
+        });
+    };
+
+    fetchProducts();
+  }, []);
+
   const categories = [
     "all",
     ...new Set(products.map((p) => p.category)),
   ] as string[];
 
-  const filteredProducts = products.filter((product) => {
+  const filteredProducts = (products || []).filter((product) => {
     const matchesCategory =
       selectedCategory === "all" || product.category === selectedCategory;
-    const matchesSearch = product.name
+    const matchesSearch = product.title
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  const handleSearch = () => {
+    // This function is called when the search button is clicked
+    // The search is already happening in real-time as the user types
+    // This is just for the button click event
+    console.log("Searching for:", searchQuery);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery("");
+  };
 
   if (loading) {
     return (
@@ -42,7 +88,7 @@ export default function ProductsPage() {
   if (error) {
     return (
       <div className="alert alert-danger" role="alert">
-        {error?.message || "An error occurred while loading products"}
+        {error}
       </div>
     );
   }
@@ -62,8 +108,22 @@ export default function ProductsPage() {
               }
               className="rounded-end-0"
             />
-            <Button variant="outline-secondary" className="rounded-start-0">
-              Search
+            {searchQuery && (
+              <Button
+                variant="outline-secondary"
+                className="rounded-0"
+                onClick={clearSearch}
+                aria-label="Clear search"
+              >
+                <i className="bi bi-x-lg"></i>
+              </Button>
+            )}
+            <Button
+              variant="primary"
+              className="rounded me-2"
+              onClick={handleSearch}
+            >
+              <i className="bi bi-search me-1"></i> Search
             </Button>
           </div>
         </div>
@@ -89,7 +149,7 @@ export default function ProductsPage() {
       <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {filteredProducts.map((product) => (
           <div key={product.id} className="col">
-            <ProductCard product={product} />
+            <ProductCard productId={product.id} />
           </div>
         ))}
       </div>

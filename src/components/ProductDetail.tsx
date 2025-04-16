@@ -1,23 +1,47 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { useProducts } from "../hooks/useProducts";
 import { Product } from "../Types/Product";
+import axios from "axios";
 
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { products, loading, error } = useProducts();
-  const [selectedImage, setSelectedImage] = useState(0);
   const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (products.length > 0 && id) {
-      const foundProduct = products.find((p) => p.id === id);
-      if (foundProduct) {
-        setProduct(foundProduct);
-      }
-    }
-  }, [products, id]);
+    const fetchProduct = () => {
+      if (!id) return;
+
+      setLoading(true);
+      setError(null);
+
+      axios
+        .get(`https://fakestoreapi.com/products/${id}`)
+        .then((response) => {
+          // Transform the API response to match our Product type
+          const apiProduct = response.data;
+          const transformedProduct: Product = {
+            id: apiProduct.id.toString(),
+            title: apiProduct.title,
+            price: apiProduct.price,
+            description: apiProduct.description,
+            category: apiProduct.category,
+            image: apiProduct.image,
+            rating: apiProduct.rating,
+          };
+          setProduct(transformedProduct);
+          setLoading(false);
+        })
+        .catch((err) => {
+          setError(err.message || "Failed to load product");
+          setLoading(false);
+        });
+    };
+
+    fetchProduct();
+  }, [id]);
 
   if (loading) {
     return (
@@ -31,8 +55,15 @@ export default function ProductDetail() {
 
   if (error) {
     return (
-      <div className="alert alert-danger" role="alert">
-        {error.message || "An error occurred"}
+      <div className="container py-4">
+        <div className="alert alert-danger" role="alert">
+          <h4 className="alert-heading">Error Loading Product</h4>
+          <p>{error}</p>
+          <hr />
+          <Link to="/products" className="btn btn-primary rounded-2">
+            Back to Products
+          </Link>
+        </div>
       </div>
     );
   }
@@ -41,11 +72,13 @@ export default function ProductDetail() {
     return (
       <div className="container py-4">
         <div className="alert alert-warning" role="alert">
-          Product not found
+          <h4 className="alert-heading">Product Not Found</h4>
+          <p>The requested product could not be found.</p>
+          <hr />
+          <Link to="/products" className="btn btn-primary rounded-2">
+            Back to Products
+          </Link>
         </div>
-        <Link to="/products" className="btn btn-primary rounded-2">
-          Back to Products
-        </Link>
       </div>
     );
   }
@@ -61,63 +94,39 @@ export default function ProductDetail() {
             <Link to="/products">Products</Link>
           </li>
           <li className="breadcrumb-item active" aria-current="page">
-            {product.name}
+            {product.title}
           </li>
         </ol>
       </nav>
 
       <div className="row">
-        {/* Product Images */}
+        {/* Product Image */}
         <div className="col-md-6 mb-4">
           <div className="card border-0 shadow-sm">
             <img
-              src={product.images[selectedImage]}
+              src={product.image}
               className="card-img-top p-3"
-              alt={product.name}
+              alt={product.title}
               style={{ height: "400px", objectFit: "contain" }}
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.src = "/placeholder.svg";
               }}
             />
-            <div className="card-body">
-              <div className="d-flex gap-2 overflow-auto">
-                {product.images.map((image: string, index: number) => (
-                  <img
-                    key={index}
-                    src={image}
-                    alt={`${product.name} - ${index + 1}`}
-                    className={`img-thumbnail ${
-                      selectedImage === index ? "border-primary" : ""
-                    }`}
-                    style={{
-                      width: "80px",
-                      height: "80px",
-                      objectFit: "cover",
-                    }}
-                    onClick={() => setSelectedImage(index)}
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = "/placeholder.svg";
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
           </div>
         </div>
 
         {/* Product Info */}
         <div className="col-md-6">
-          <h1 className="h2 mb-3">{product.name}</h1>
+          <h1 className="h2 mb-3">{product.title}</h1>
           <div className="mb-3">
-            <span className="badge bg-primary me-2">{product.category}</span>
+            <span className="badge bg-primary ms-2 me-2">{product.category}</span>
             <span
               className={`badge ${
-                product.stock > 0 ? "bg-success" : "bg-danger"
+                (product.rating?.count || 0) > 0 ? "bg-success" : "bg-danger"
               }`}
             >
-              {product.stock > 0 ? "In Stock" : "Out of Stock"}
+              {(product.rating?.count || 0) > 0 ? "In Stock" : "Out of Stock"}
             </span>
           </div>
           <h2 className="h3 text-primary mb-4">
@@ -132,7 +141,7 @@ export default function ProductDetail() {
           <div className="d-grid gap-2">
             <button
               className="btn btn-primary rounded-2"
-              disabled={product.stock === 0}
+              disabled={(product.rating?.count || 0) === 0}
               onClick={() => alert("Added to cart!")}
             >
               Add to Cart
