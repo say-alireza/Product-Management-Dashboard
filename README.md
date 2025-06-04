@@ -65,28 +65,7 @@ Your project should now be running locally at `http://localhost:3000`
 
 ---
 
-## ⚙️ Configuration
 
-1. Create a `.env` file in the project root (as shown above).
-
-2. Create `src/api/client.js`:
-
-```javascript
-import axios from 'axios';
-
-const apiClient = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL,
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${process.env.REACT_APP_API_KEY}`
-  }
-});
-
-export default apiClient;
-```
-
----
 
 ## 🖥️ Development
 
